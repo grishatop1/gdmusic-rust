@@ -59,7 +59,12 @@ fn main() {
                 return;
             }
 
-            fs::copy(fpath.as_os_str(), &to_copy).unwrap();
+            let copy_res = fs::copy(fpath.as_os_str(), &to_copy);
+            if let Err(_c) = &copy_res {
+                let help_str = format!("{} - failed to copy the song.", fname);
+                writeln!(&mut stdout.lock(), "{}", help_str.red()).unwrap();
+                return
+            }
 
             let help_str = format!("{} - completed!", fname);
             writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
