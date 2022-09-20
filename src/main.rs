@@ -50,6 +50,12 @@ fn main() {
             let author_selector = scraper::Selector::parse(".item-details-main > h4:nth-child(1) > a:nth-child(1)").unwrap();
             let song_author = document.select(&author_selector).next().unwrap().inner_html();
 
+            let to_copy = format!("./output/{}.mp3", song_title);
+
+            if Path::new(&to_copy).exists() {
+                fs::copy(fpath.as_os_str(), &to_copy).unwrap();
+            }
+
 
             let help_str = format!("{} - completed!", fname);
             writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
