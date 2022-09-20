@@ -6,6 +6,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use ureq;
 use threadpool::ThreadPool;
+use scraper;
 
 fn main() {
     
@@ -20,7 +21,7 @@ fn main() {
         panic!("Can't find the folder!");
     }
 
-    fs::create_dir("./output").unwrap();
+    fs::create_dir_all("./output").unwrap();
 
     let music_files = get_songs_paths(&path);
     let pool = ThreadPool::new(4);
@@ -34,18 +35,26 @@ fn main() {
             writeln!(&mut stdout.lock(), "{}", help_str.yellow()).unwrap();
             
             let url = format!("https://www.newgrounds.com/audio/listen/{}", fname);
-            let req = ureq::get(&url).call();//.unwrap().into_string().unwrap();
-            if let Err(req) = &req {
+            let req = ureq::get(&url).call();//
+            if let Err(_req) = &req {
                 let help_str = format!("{} - failed.", fname);
                 writeln!(&mut stdout.lock(), "{}", help_str.red()).unwrap();
                 return;
             }
 
+            let document = scraper::Html::parse_document(&req.unwrap().into_string().unwrap());
+
+            let title_selector = scraper::Selector::parse(".rated-e").unwrap();
+            let song_title = document.select(&title_selector).next().unwrap().inner_html();
+            
+            let author_selector = scraper::Selector::parse(".item-details-main > h4:nth-child(1) > a:nth-child(1)").unwrap();
+            let song_author = document.select(&author_selector).next().unwrap().inner_html();
 
 
             let help_str = format!("{} - completed!", fname);
             writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
         });
+        break; //DEBUG
     }
 
     pool.join();
