@@ -7,7 +7,6 @@ use std::path::PathBuf;
 use ureq;
 use threadpool::ThreadPool;
 use scraper;
-use std::env::consts::OS;
 
 fn main() {
     
