@@ -1,4 +1,5 @@
 use colored::Colorize;
+use scraper::Html;
 use std::path::Path;
 use std::fs;
 use std::io;
@@ -44,12 +45,9 @@ fn main() {
             }
 
             let document = scraper::Html::parse_document(&req.unwrap().into_string().unwrap());
-
-            let title_selector = scraper::Selector::parse(".rated-e").unwrap();
-            let song_title = document.select(&title_selector).next().unwrap().inner_html();
             
-            let author_selector = scraper::Selector::parse(".item-details-main > h4:nth-child(1) > a:nth-child(1)").unwrap();
-            let _song_author = document.select(&author_selector).next().unwrap().inner_html();
+            let song_title = get_ng_title(&document);
+            let _song_author = get_ng_author(&document);
 
             let to_copy = format!("./output/{}.mp3", song_title);
 
@@ -74,6 +72,16 @@ fn main() {
 
     pool.join();
     println!("Done!");
+}
+
+fn get_ng_title(document: &Html) -> String {
+    let title_selector = scraper::Selector::parse(".rated-e").unwrap();
+    document.select(&title_selector).next().unwrap().inner_html()
+}
+
+fn get_ng_author(document: &Html) -> String {
+    let author_selector = scraper::Selector::parse(".item-details-main > h4:nth-child(1) > a:nth-child(1)").unwrap();
+    document.select(&author_selector).next().unwrap().inner_html()
 }
 
 fn get_songs_paths(path: &str) -> Vec<PathBuf> {
