@@ -26,6 +26,9 @@ fn main() {
     let music_files = get_songs_paths(&path);
     let pool = ThreadPool::new(4);
 
+    let help_str = format!("Found {} total songs...", music_files.len());
+    println!("{}", help_str);
+
     for fpath in music_files {
         pool.execute(move || {
             let fname = fpath.file_stem().unwrap().to_str().unwrap();
@@ -48,19 +51,22 @@ fn main() {
             let song_title = document.select(&title_selector).next().unwrap().inner_html();
             
             let author_selector = scraper::Selector::parse(".item-details-main > h4:nth-child(1) > a:nth-child(1)").unwrap();
-            let song_author = document.select(&author_selector).next().unwrap().inner_html();
+            let _song_author = document.select(&author_selector).next().unwrap().inner_html();
 
             let to_copy = format!("./output/{}.mp3", song_title);
 
             if Path::new(&to_copy).exists() {
-                fs::copy(fpath.as_os_str(), &to_copy).unwrap();
+                let help_str = format!("Skipping {}, already there.", fname);
+                writeln!(&mut stdout.lock(), "{}", help_str.truecolor(190,190,190)).unwrap();
+                return;
             }
 
+            fs::copy(fpath.as_os_str(), &to_copy).unwrap();
 
             let help_str = format!("{} - completed!", fname);
             writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
         });
-        break; //DEBUG
+        //break; //DEBUG
     }
 
     pool.join();
