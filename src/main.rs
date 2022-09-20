@@ -1,9 +1,13 @@
 use colored::Colorize;
 use std::path::Path;
 use std::fs;
+use std::io;
+use std::io::Write;
+use ureq;
+use threadpool::ThreadPool;
 
 fn main() {
-    println!("Paste {} folder path: [leave emptry for default]", "GeometryDash".green());
+    println!("Paste {} folder path: [leave empty for default]", "GeometryDash".green());
     let mut path = String::new();
     std::io::stdin().read_line(&mut path).unwrap();
     path = path.trim().to_string();
@@ -15,6 +19,14 @@ fn main() {
     }
 
     let music_files = get_songs_paths(&path);
+    let pool = ThreadPool::new(4);
+
+    for fpath in music_files {
+        pool.execute(|| {
+            let stdout = io::stdout();
+            writeln!(&mut stdout.lock(), "lol").unwrap();
+        });
+    }
 }
 
 fn get_songs_paths(path: &str) -> Vec<String> {
