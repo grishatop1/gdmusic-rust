@@ -23,7 +23,7 @@ fn main() {
     fs::create_dir_all("./output").unwrap();
 
     let music_files = get_songs_paths(&path);
-    let pool = ThreadPool::new(4);
+    let pool = ThreadPool::new(16);
 
     let help_str = format!("Found {} total songs...", music_files.len());
     println!("{}", help_str);
