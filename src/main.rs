@@ -8,6 +8,7 @@ use ureq;
 use threadpool::ThreadPool;
 
 fn main() {
+    
     println!("Paste {} folder path: [leave empty for default]", "GeometryDash".yellow());
     let mut path = String::new();
     std::io::stdin().read_line(&mut path).unwrap();
@@ -19,21 +20,36 @@ fn main() {
         panic!("Can't find the folder!");
     }
 
+    fs::create_dir("./output").unwrap();
+
     let music_files = get_songs_paths(&path);
     let pool = ThreadPool::new(4);
 
     for fpath in music_files {
         pool.execute(move || {
-            let fname = fpath.file_name().unwrap().to_str().unwrap();
-            println!("{}", fname);
+            let fname = fpath.file_stem().unwrap().to_str().unwrap();
+            let stdout = io::stdout();
+            
+            let help_str = format!("Working on {} song ID.", fname);
+            writeln!(&mut stdout.lock(), "{}", help_str.yellow()).unwrap();
+            
+            let url = format!("https://www.newgrounds.com/audio/listen/{}", fname);
+            let req = ureq::get(&url).call();//.unwrap().into_string().unwrap();
+            if let Err(req) = &req {
+                let help_str = format!("{} - failed.", fname);
+                writeln!(&mut stdout.lock(), "{}", help_str.red()).unwrap();
+                return;
+            }
 
-            //let stdout = io::stdout();
-            //writeln!(&mut stdout.lock(), "lol").unwrap();
+
+
+            let help_str = format!("{} - completed!", fname);
+            writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
         });
     }
 
     pool.join();
-    println!("{}", "All jobs are done!".green());
+    println!("Done!");
 }
 
 fn get_songs_paths(path: &str) -> Vec<PathBuf> {
