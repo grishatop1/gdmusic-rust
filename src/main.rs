@@ -3,11 +3,12 @@ use std::path::Path;
 use std::fs;
 use std::io;
 use std::io::Write;
+use std::path::PathBuf;
 use ureq;
 use threadpool::ThreadPool;
 
 fn main() {
-    println!("Paste {} folder path: [leave empty for default]", "GeometryDash".green());
+    println!("Paste {} folder path: [leave empty for default]", "GeometryDash".yellow());
     let mut path = String::new();
     std::io::stdin().read_line(&mut path).unwrap();
     path = path.trim().to_string();
@@ -22,23 +23,27 @@ fn main() {
     let pool = ThreadPool::new(4);
 
     for fpath in music_files {
-        pool.execute(|| {
-            let stdout = io::stdout();
-            writeln!(&mut stdout.lock(), "lol").unwrap();
+        pool.execute(move || {
+            let fname = fpath.file_name().unwrap().to_str().unwrap();
+            println!("{}", fname);
+
+            //let stdout = io::stdout();
+            //writeln!(&mut stdout.lock(), "lol").unwrap();
         });
     }
+
+    pool.join();
+    println!("{}", "All jobs are done!".green());
 }
 
-fn get_songs_paths(path: &str) -> Vec<String> {
+fn get_songs_paths(path: &str) -> Vec<PathBuf> {
     let all_files = fs::read_dir(&path).unwrap();
-    let mut music_files: Vec<String> = Vec::new();
+    let mut music_files: Vec<PathBuf> = Vec::new();
 
     for res_path in all_files {
-        let fpath = res_path.unwrap().path().to_str().unwrap().to_string();
-        if !fpath.ends_with(".mp3") {
-            continue;
+        if res_path.as_ref().unwrap().path().extension().unwrap().to_str().unwrap() == "mp3" {
+            music_files.push(res_path.unwrap().path());
         }
-        music_files.push(fpath);
     }
 
     music_files
