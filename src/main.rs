@@ -1,13 +1,15 @@
-use colored::Colorize;
-use scraper::Html;
-use std::path::Path;
 use std::fs;
 use std::io;
 use std::io::Write;
+use std::path::Path;
 use std::path::PathBuf;
-use ureq;
+
 use threadpool::ThreadPool;
+use colored::Colorize;
+use scraper::Html;
 use scraper;
+use ureq;
+
 
 fn main() {
     
