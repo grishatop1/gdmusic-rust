@@ -7,18 +7,17 @@ use std::path::PathBuf;
 use ureq;
 use threadpool::ThreadPool;
 use scraper;
+use std::env::consts::OS;
 
 fn main() {
     
-    println!("Paste {} folder path: [leave empty for default]", "GeometryDash".yellow());
+    println!("Paste {} folder path:", "GeometryDash".yellow());
     let mut path = String::new();
     std::io::stdin().read_line(&mut path).unwrap();
     path = path.trim().to_string();
-    if path.is_empty() {
-        path = "/home/grisha/.wine/drive_c/users/grisha/AppData/Local/GeometryDash".into();
-    }
     if !Path::new(&path).exists() {
-        panic!("Can't find the folder!");
+        println!("{}", "Can't find the folder".red());
+        return;
     }
 
     fs::create_dir_all("./output").unwrap();
