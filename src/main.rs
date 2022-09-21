@@ -25,7 +25,7 @@ fn main() {
     fs::create_dir_all("./output").unwrap();
 
     let music_files = get_songs_paths(&path);
-    let pool = ThreadPool::new(16);
+    let pool = ThreadPool::new(12);
 
     let help_str = format!("Found {} total songs...", music_files.len());
     println!("{}", help_str);
@@ -40,8 +40,8 @@ fn main() {
             
             let url = format!("https://www.newgrounds.com/audio/listen/{}", fname);
             let req = ureq::get(&url).call();//
-            if let Err(_req) = &req {
-                let help_str = format!("{} - failed.", fname);
+            if let Err(e) = &req {
+                let help_str = format!("{} - failed. [{}]", fname, e);
                 writeln!(&mut stdout.lock(), "{}", help_str.red()).unwrap();
                 return;
             }
@@ -60,8 +60,8 @@ fn main() {
             }
 
             let copy_res = fs::copy(fpath.as_os_str(), &to_copy);
-            if let Err(_c) = &copy_res {
-                let help_str = format!("{} - failed to copy the song.", fname);
+            if let Err(c) = &copy_res {
+                let help_str = format!("{} - failed to copy the song [{}]", fname, c);
                 writeln!(&mut stdout.lock(), "{}", help_str.red()).unwrap();
                 return
             }
