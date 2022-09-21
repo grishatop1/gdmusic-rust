@@ -1,5 +1,6 @@
 use std::fs;
 use std::io;
+use std::io::Read;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -27,14 +28,15 @@ fn main() {
     } else {
         path = path_o.unwrap();
     }
+
+    let music_files = get_songs_paths(&path);
+
+    println!("{} found. ({} songs) Press Enter to start!", path.green(), music_files.len());
+    std::io::stdin().read(&mut [0]).unwrap();
     
     fs::create_dir_all("./output").unwrap();
 
-    let music_files = get_songs_paths(&path);
     let pool = ThreadPool::new(12);
-
-    let help_str = format!("Found {} total songs...", music_files.len());
-    println!("{}", help_str);
 
     for fpath in music_files {
         pool.execute(move || {
@@ -91,7 +93,6 @@ fn find_gd_folder() -> Option<String> {
         paths.push(dirs::home_dir().unwrap().join(format!(".wine/drive_c/users/{}/AppData/Local/GeometryDash", std::env::var("USER").unwrap())));
         paths.push(dirs::home_dir().unwrap().join(format!(".wine/drive_c/users/{}/AppData/Local/Geometry Dash", std::env::var("USER").unwrap())));
     }
-    println!("{:?}", paths);
 
     for p in paths {
         if p.exists() {
