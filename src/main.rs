@@ -74,7 +74,7 @@ fn main() {
                 return
             }
 
-            let help_str = format!("{} - completed! ({})", song_title, fname);
+            let help_str = format!("{} - completed!", song_title);
             writeln!(&mut stdout.lock(), "{}", help_str.green()).unwrap();
         });
         //break; //DEBUG
