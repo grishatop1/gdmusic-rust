@@ -9,19 +9,25 @@ use colored::Colorize;
 use scraper::Html;
 use scraper;
 use ureq;
+use dirs;
 
 
 fn main() {
-    
-    println!("Paste {} folder path:", "GeometryDash".yellow());
+    let path_o = find_gd_folder();
     let mut path = String::new();
-    std::io::stdin().read_line(&mut path).unwrap();
-    path = path.trim().to_string();
-    if !Path::new(&path).exists() {
-        println!("{}", "Can't find the folder".red());
-        return;
+    if path_o == None {
+        println!("Paste {} folder path:", "GeometryDash".yellow());
+        let mut path = String::new();
+        std::io::stdin().read_line(&mut path).unwrap();
+        path = path.trim().to_string();
+        if !Path::new(&path).exists() {
+            println!("{}", "Can't find the folder".red());
+            return;
+        }
+    } else {
+        path = path_o.unwrap();
     }
-
+    
     fs::create_dir_all("./output").unwrap();
 
     let music_files = get_songs_paths(&path);
@@ -74,6 +80,25 @@ fn main() {
 
     pool.join();
     println!("Done!");
+}
+
+fn find_gd_folder() -> Option<String> {
+    let os = std::env::consts::OS;
+    let mut paths: Vec<PathBuf> = Vec::new();
+    paths.push(dirs::data_local_dir().unwrap().join("GeometryDash"));
+    paths.push(dirs::data_local_dir().unwrap().join("Geometry Dash"));
+    if os == "linux" {
+        paths.push(dirs::home_dir().unwrap().join(format!(".wine/drive_c/users/{}/AppData/Local/GeometryDash", std::env::var("USER").unwrap())));
+        paths.push(dirs::home_dir().unwrap().join(format!(".wine/drive_c/users/{}/AppData/Local/Geometry Dash", std::env::var("USER").unwrap())));
+    }
+    println!("{:?}", paths);
+
+    for p in paths {
+        if p.exists() {
+            return Some(p.to_str().unwrap().to_string());
+        }
+    }
+    None
 }
 
 fn get_ng_title(document: &Html) -> String {
