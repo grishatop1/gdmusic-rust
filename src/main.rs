@@ -31,6 +31,11 @@ fn main() {
 
     let music_files = get_songs_paths(&path);
 
+    if music_files.is_empty() {
+        println!("No songs found in the {} folder!", path.yellow());
+        return;
+    }
+
     println!("{} found. ({} songs) Press Enter to start!", path.green(), music_files.len());
     std::io::stdin().read(&mut [0]).unwrap();
     
