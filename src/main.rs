@@ -101,10 +101,16 @@ fn find_gd_folder() -> Option<String> {
 
     for p in paths {
         if p.exists() {
-            return Some(p.to_str().unwrap().to_string());
+            if is_legit_gd_folder(&p) {
+                return Some(p.to_str().unwrap().to_string());
+            }
         }
     }
     None
+}
+
+fn is_legit_gd_folder(p: &PathBuf) -> bool {
+    p.join("CCLocalLevels.dat").exists()
 }
 
 fn get_ng_title(document: &Html) -> String {
