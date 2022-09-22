@@ -36,7 +36,7 @@ fn main() {
         return;
     }
 
-    println!("{} found. ({} songs) Press Enter to start!", path.green(), music_files.len());
+    println!("{} found. ({} songs) Press Enter to start!", path.green(), music_files.len().to_string().blue());
     std::io::stdin().read(&mut [0]).unwrap();
     
     fs::create_dir_all("./output").unwrap();
