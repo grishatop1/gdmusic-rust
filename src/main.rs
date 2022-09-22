@@ -16,7 +16,7 @@ use dirs;
 fn main() {
     let path_o = find_gd_folder();
     let mut path = String::new();
-    if path_o == None {
+    if path_o == None { //GD Folder not found. Let user manually enter the path.
         println!("Paste {} folder path:", "GeometryDash".yellow());
         let mut path = String::new();
         std::io::stdin().read_line(&mut path).unwrap();
@@ -43,7 +43,7 @@ fn main() {
 
     let pool = ThreadPool::new(12);
 
-    for fpath in music_files {
+    for fpath in music_files { //Iterate through vector of music (full) paths
         pool.execute(move || {
             let fname = fpath.file_stem().unwrap().to_str().unwrap();
             let stdout = io::stdout();
